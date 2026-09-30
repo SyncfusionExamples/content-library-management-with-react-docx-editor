@@ -4,7 +4,7 @@
 
 Content Library Management is a React + ASP.NET Core sample that provides a
 centralized workspace for uploading, editing, versioning, and exporting
-reusable DOCX, XLSX, and PPTX content items using the Syncfusion<sup style="font-size:70%">&reg;</sup>
+reusable DOCX content items using the Syncfusion<sup style="font-size:70%">&reg;</sup>
 [React DOCX Editor](https://www.syncfusion.com/docx-editor-sdk/react-docx-editor?utm_source=github&utm_medium=listing&utm_campaign=github-github-documenteditor-examples) (Document Editor).
 
 The sample is designed for organizations that need a reusable content
@@ -15,7 +15,7 @@ draw from over time.
 Users can:
 
 -   View all content items from a single dashboard table.
--   Upload new DOCX, XLSX, or PPTX files with metadata (title, version, category, status, author).
+-   Upload new DOCX files with metadata (title, version, category, status, author).
 -   Open a DOCX in the Syncfusion Word-like Document Editor with full ribbon toolbar, track changes, and comments.
 -   Edit metadata for any item from a dialog (no need to open the editor).
 -   Edit status of a document directly from the editor toolbar.
@@ -29,7 +29,7 @@ Users can:
 
 ### Upload and Metadata
 
-Uploading accepts `.docx`, `.xlsx`, and `.pptx`. Each item carries:
+Uploading accepts `.docx`. Each item carries:
 
 -   Title, Version, Category (SOP / HR / Safety / Training / Manufacturing / Finance / Other)
 -   Status (Draft / Review / Approved)
@@ -82,23 +82,16 @@ auto-opens the new document for review.
 ### Export to Combined DOCX or Excel
 
 -   **Merge documents** (DOCX-only, ≥2 items) — saves a new library item (see above).
--   **Export Excel** (any selection) — produces a single `.xlsx` whose rows are the selected items, with columns for Title, Version, Category, Status, Author, Created/Modified dates, and a plain-text extract of the document body (DOCX items only).
+-   **Export Excel** (DOCX-only) — produces a single `.xlsx` whose rows are the selected DOCX items, with columns for Title, Version, Category, Status, Author, Created/Modified dates, and a plain-text extract of the document body.
 
 ## Architecture
 
-The sample consists of two applications that live next to each other in
-this repository:
+The sample consists of two applications:
 
-- **ASP.NET Core Web API** (`serverside/`) — exposes the Content Library
-  REST endpoints and the Document Editor service endpoints that the
-  React app talks to. Files are stored on disk under
-  `App_Data/ContentLibrary/{id}/v{n}.docx`; the metadata index lives in
-  `App_Data/ContentLibrary/library.json`.
-- **React application** (`clientside/`) — Vite + React 19 UI with the
-  Syncfusion Document Editor for in-browser DOCX editing.
+- **ASP.NET Core Web API** (`Server-Side/`) — exposes the Content Library REST endpoints and the Document Editor service endpoints.
+- **React application** (`Client-Side/`) — Vite + React 19 UI with the Syncfusion Document Editor for in-browser DOCX editing.
 
-The Vite dev server proxies `/api/*` to the backend so the browser
-sees same-origin requests (no CORS).
+The Vite dev server proxies `/api/*` to the backend so the browser sees same-origin requests (no CORS). Files are stored on disk under `App_Data/ContentLibrary/{id}/v{n}.docx`; the metadata index lives in `App_Data/ContentLibrary/library.json`.
 
 ## Prerequisites
 
@@ -109,7 +102,7 @@ sees same-origin requests (no CORS).
 
 ### Server
 
--   .NET 8 SDK
+-   .NET 10 SDK
 -   ASP.NET Core runtime
 -   Syncfusion ASP.NET Core and DocIO packages referenced by the project
 
@@ -131,8 +124,8 @@ Build and run:
 
 ``` bash
 dotnet restore
-dotnet build EJ2APIServices_NET8.csproj -c Debug
-dotnet run --project EJ2APIServices_NET8.csproj --no-build --configuration Debug --framework net8.0 --no-launch-profile --urls http://localhost:62870
+dotnet build EJ2APIServices.csproj -c Debug
+dotnet run --project EJ2APIServices.csproj --no-build --configuration Debug --framework net8.0 --no-launch-profile --urls http://localhost:62870
 ```
 
 The configured development URL is:
@@ -191,7 +184,7 @@ Document Editor at runtime.
 | --- | --- |
 | `GET /api/contentlibrary/items` | List all content items (newest modified first). |
 | `GET /api/contentlibrary/items/{id}` | Get a single item, including its `Versions[]` array. |
-| `POST /api/contentlibrary/upload` | Upload a new DOCX / XLSX / PPTX with metadata. |
+| `POST /api/contentlibrary/upload` | Upload a new DOCX with metadata. |
 | `POST /api/contentlibrary/items/{id}/versions` | Save a new DOCX version (SFDT → DOCX). |
 | `GET /api/contentlibrary/items/{id}/download` | Download the original or a specific version (`?version=N`). |
 | `DELETE /api/contentlibrary/items/{id}` | Delete the item and its folder. |
@@ -227,15 +220,15 @@ random suffix) so `App_Data/ContentLibrary` is easy to read on disk.
 
 ## Resources
 
--   **Product page:** [Syncfusion® React DOCX Editor](https://www.syncfusion.com/docx-editor-sdk/react-docx-editor?utm_source=github&utm_medium=listing&utm_campaign=github-github-documenteditor-examples)
--   **Documentation:** [Syncfusion® React DOCX Editor - Documentation](https://help.syncfusion.com/document-processing/word/word-processor/react/overview?utm_source=github&utm_medium=listing&utm_campaign=github-github-documenteditor-examples)
--   **Online demo:** [Syncfusion® React DOCX Editor - Online demo](https://document.syncfusion.com/demos/docx-editor/react/#/tailwind3/document-editor/default?utm_source=github&utm_medium=listing&utm_campaign=github-github-documenteditor-examples)
+- **Product page:** [Syncfusion React DOCX Editor](https://www.syncfusion.com/docx-editor-sdk/react-docx-editor?utm_source=github&utm_medium=listing&utm_campaign=github-github-documenteditor-examples)
+- **Documentation:** [Syncfusion React DOCX Editor - Documentation](https://help.syncfusion.com/document-processing/word/word-processor/react/overview?utm_source=github&utm_medium=listing&utm_campaign=github-github-documenteditor-examples)
+- **Online demo:** [Syncfusion React DOCX Editor - Online demo](https://document.syncfusion.com/demos/docx-editor/react/#/tailwind3/document-editor/default?utm_source=github&utm_medium=listing&utm_campaign=github-github-documenteditor-examples)
 
 ## Support and feedback
 
-For any other queries, reach our [Syncfusion® support team](https://support.syncfusion.com/?utm_source=github&utm_medium=listing&utm_campaign=github-github-documenteditor-examples) or post the queries through the [community forums](https://www.syncfusion.com/forums?utm_source=github&utm_medium=listing&utm_campaign=github-github-documenteditor-examples).
+For any other queries, reach our [Syncfusion support team](https://support.syncfusion.com/?utm_source=github&utm_medium=listing&utm_campaign=github-github-documenteditor-examples) or post the queries through the [community forums](https://www.syncfusion.com/forums?utm_source=github&utm_medium=listing&utm_campaign=github-github-documenteditor-examples). 
 
-Request a new feature through the [Syncfusion® feedback portal](https://www.syncfusion.com/feedback?utm_source=github&utm_medium=listing&utm_campaign=github-github-documenteditor-examples).
+Request new feature through [Syncfusion feedback portal](https://www.syncfusion.com/feedback?utm_source=github&utm_medium=listing&utm_campaign=github-github-documenteditor-examples). 
 
 ## License
 
