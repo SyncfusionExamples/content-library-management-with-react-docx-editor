@@ -8,6 +8,15 @@
     }
   },
   "profiles": {
+    "EJ2APIServices": {
+      "commandName": "Project",
+      "launchBrowser": false,
+      "launchUrl": "api/test",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "http://localhost:62870"
+    },
     "IIS Express": {
       "commandName": "IISExpress",
       "launchBrowser": true,
@@ -24,15 +33,6 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
       "applicationUrl": "http://localhost:5000"
-    },
-    "EJ2APIServices": {
-      "commandName": "Project",
-      "launchBrowser": false,
-      "launchUrl": "api/test",
-      "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
-      },
-      "applicationUrl": "http://localhost:62870"
     }
   }
 }

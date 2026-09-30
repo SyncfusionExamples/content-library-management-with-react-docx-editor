@@ -152,10 +152,17 @@ namespace EJ2APIServices.Services
         /// changes (handled by UpdateStatus / UpdateMetadata) leave the
         /// version untouched, as required.
         ///
-        /// The version being created snapshots the item's current Status so
-        /// the history view can show "this version was authored when the
-        /// document was in state X". Older version records keep the status
-        /// they were saved with and are not retroactively changed.
+        /// Version status semantics at save time:
+        ///   - The OUTGOING current version (v{n}) is the version the user
+        ///     was actively editing up to this save. Its per-version
+        ///     Status is stamped here with the live item.Status — the
+        ///     status the user had set in the editor for that version.
+        ///     This is the only place an already-existing version's
+        ///     Status is ever written.
+        ///   - The NEW version (v{n+1}) inherits the same live status as
+        ///     its starting point, since the user is continuing to edit
+        ///     with the same workflow state.
+        ///   - Strictly older versions (v &lt; n) are NEVER touched here.
         /// </summary>
         public ContentItem AddVersion(string id, Stream fileStream, string modifiedUser)
         {
@@ -175,6 +182,20 @@ namespace EJ2APIServices.Services
                 fileStream.CopyTo(fs);
             }
 
+            // Freeze the outgoing current version (v{n}) with the live
+            // status the user was working with. This must happen BEFORE
+            // we bump CurrentVersion, otherwise we'd look up the new
+            // version number and write the status onto the brand-new
+            // record. UpdateStatus/UpdateMetadata never touch this
+            // field, so this is the only writer; the result is that v{n}
+            // ends up with the workflow state the user had when they
+            // decided to save it.
+            var outgoing = item.Versions?.FirstOrDefault(v => v.VersionNumber == item.CurrentVersion);
+            if (outgoing != null && !string.IsNullOrEmpty(item.Status))
+            {
+                outgoing.Status = item.Status;
+            }
+
             item.CurrentVersion = next;
             item.CurrentFile = fileName;
             // Sync the displayed Version to the new integer counter so the
@@ -187,9 +208,10 @@ namespace EJ2APIServices.Services
                 FileName = fileName,
                 ModifiedUser = modifiedUser,
                 ModifiedDate = DateTime.Now,
-                // Snapshot the current workflow status onto the new version
-                // so the history dialog can show what state the document
-                // was in when this version was authored.
+                // The new version starts life carrying the same workflow
+                // status the user was on. It will stay in sync with the
+                // live item.Status through future UpdateStatus calls
+                // (see below) or be re-frozen on the next save.
                 Status = item.Status,
             });
             Save(store);
@@ -203,10 +225,14 @@ namespace EJ2APIServices.Services
             if (item == null) return null;
             item.Status = status;
             item.ModifiedDate = DateTime.Now;
-            // Status is a property of the active edit. The current version
-            // (the one being worked on) inherits the new status, but older
-            // versions keep the status they were saved with. This matches
-            // the "status on the active edit only" model the user picked.
+            // Status belongs to the *active* edit. Update both
+            //   1. item.Status — the in-flight working copy used by
+            //      the home page and the document editor dropdown.
+            //   2. The CURRENT version's per-version Status — so the
+            //      history dialog's "current" row reflects the live
+            //      workflow state without requiring a save first.
+            // Older versions are NEVER touched here; their Status was
+            // frozen at save time (see AddVersion).
             var current = item.Versions?.FirstOrDefault(v => v.VersionNumber == item.CurrentVersion);
             if (current != null) current.Status = status;
             Save(store);
@@ -225,12 +251,11 @@ namespace EJ2APIServices.Services
             if (!string.IsNullOrEmpty(version)) item.Version = version;
             item.ModifiedDate = DateTime.Now;
 
-            // When status is changed through metadata, only the current
-            // (active-edit) version inherits the new value. Older
-            // versions keep the status they were saved with, so the
-            // history view can still show what state each historical
-            // version was authored in. This mirrors the rule used by
-            // UpdateStatus so both entry points behave identically.
+            // Mirror UpdateStatus: when a status is supplied via the
+            // metadata dialog, also update the current version's
+            // per-version Status so the history dialog's "current" row
+            // stays in sync. Older versions remain frozen at their
+            // save-time status (see AddVersion).
             if (!string.IsNullOrEmpty(status))
             {
                 var current = item.Versions?.FirstOrDefault(v => v.VersionNumber == item.CurrentVersion);
