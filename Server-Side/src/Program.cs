@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
+using Syncfusion.Licensing;
 
 namespace EJ2APIServices
 {
@@ -7,6 +8,9 @@ namespace EJ2APIServices
     {
         public static void Main(string[] args)
         {
+         
+            //SyncfusionLicenseProvider.RegisterLicense("YOUR LICENSE Key");
+
             BuildWebHost(args).Run();
         }
 
