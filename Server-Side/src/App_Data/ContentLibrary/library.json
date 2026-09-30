@@ -1,149 +1,107 @@
 ﻿{
   "Items": [
     {
-      "Id": "Medical-Consultation-Template",
-      "Title": "Medical_Consultation_Template",
-      "Version": "3",
+      "Id": "Getting-Started",
+      "Title": "Getting Started",
+      "Version": "1.0",
       "Category": "SOP",
       "Status": "Draft",
       "Author": "Admin",
-      "CreatedDate": "2026-09-30T15:57:34.4867223+05:30",
-      "ModifiedDate": "2026-09-30T19:11:38.4961288+05:30",
-      "CurrentFile": "v3.docx",
-      "CurrentVersion": 3,
+      "CreatedDate": "2026-09-30T19:27:55.8678717+05:30",
+      "ModifiedDate": "2026-09-30T19:27:55.8678725+05:30",
+      "CurrentFile": "v1.docx",
+      "CurrentVersion": 1,
       "Versions": [
         {
           "VersionNumber": 1,
           "FileName": "v1.docx",
           "ModifiedUser": "Admin",
-          "ModifiedDate": "2026-09-30T15:57:34.4867232+05:30",
-          "Status": null
-        },
-        {
-          "VersionNumber": 2,
-          "FileName": "v2.docx",
-          "ModifiedUser": "Author",
-          "ModifiedDate": "2026-09-30T17:47:32.7982521+05:30",
-          "Status": "Review"
-        },
-        {
-          "VersionNumber": 3,
-          "FileName": "v3.docx",
-          "ModifiedUser": "Author",
-          "ModifiedDate": "2026-09-30T18:57:17.8955605+05:30",
+          "ModifiedDate": "2026-09-30T19:27:55.8678734+05:30",
           "Status": "Draft"
         }
       ]
     },
     {
-      "Id": "Sep-26-query-tickets",
-      "Title": "Sep 26 query tickets",
+      "Id": "Character-Formatting",
+      "Title": "Character Formatting",
       "Version": "1.0",
       "Category": "SOP",
       "Status": "Draft",
       "Author": "Admin",
-      "CreatedDate": "2026-09-30T16:51:16.7634133+05:30",
-      "ModifiedDate": "2026-09-30T16:51:16.7634135+05:30",
-      "CurrentFile": "v1.xlsx",
+      "CreatedDate": "2026-09-30T19:28:04.760752+05:30",
+      "ModifiedDate": "2026-09-30T19:28:04.7607522+05:30",
+      "CurrentFile": "v1.docx",
       "CurrentVersion": 1,
-      "Versions": [
-        {
-          "VersionNumber": 1,
-          "FileName": "v1.xlsx",
-          "ModifiedUser": "Admin",
-          "ModifiedDate": "2026-09-30T16:51:16.7634154+05:30",
-          "Status": null
-        }
-      ]
-    },
-    {
-      "Id": "CKEditor-vs-DOCX-Editor",
-      "Title": "CKEditor vs DOCX Editor",
-      "Version": "1.0",
-      "Category": "SOP",
-      "Status": "Draft",
-      "Author": "Admin",
-      "CreatedDate": "2026-09-30T16:52:34.3728188+05:30",
-      "ModifiedDate": "2026-09-30T18:52:07.3665748+05:30",
-      "CurrentFile": "v2.docx",
-      "CurrentVersion": 2,
       "Versions": [
         {
           "VersionNumber": 1,
           "FileName": "v1.docx",
           "ModifiedUser": "Admin",
-          "ModifiedDate": "2026-09-30T16:52:34.3728206+05:30",
-          "Status": null
-        },
-        {
-          "VersionNumber": 2,
-          "FileName": "v2.docx",
-          "ModifiedUser": "Author",
-          "ModifiedDate": "2026-09-30T17:23:33.2567032+05:30",
-          "Status": null
+          "ModifiedDate": "2026-09-30T19:28:04.7607539+05:30",
+          "Status": "Draft"
         }
       ]
     },
     {
-      "Id": "Combined-2-items-2026-09-30-1735",
-      "Title": "Combined — 2 items — 2026-09-30 17:35",
-      "Version": "1.0",
-      "Category": "Other",
-      "Status": "Draft",
-      "Author": "Merge",
-      "CreatedDate": "2026-09-30T17:35:01.3312998+05:30",
-      "ModifiedDate": "2026-09-30T17:35:01.3313+05:30",
-      "CurrentFile": "v1.docx",
-      "CurrentVersion": 1,
-      "Versions": [
-        {
-          "VersionNumber": 1,
-          "FileName": "v1.docx",
-          "ModifiedUser": "Merge",
-          "ModifiedDate": "2026-09-30T17:35:01.3313004+05:30",
-          "Status": null
-        }
-      ]
-    },
-    {
-      "Id": "Merged-document",
-      "Title": "Merged document",
-      "Version": "1.0",
-      "Category": "SOP",
-      "Status": "Review",
-      "Author": "Marge",
-      "CreatedDate": "2026-09-30T17:41:40.9482619+05:30",
-      "ModifiedDate": "2026-09-30T17:41:40.9482622+05:30",
-      "CurrentFile": "v1.docx",
-      "CurrentVersion": 1,
-      "Versions": [
-        {
-          "VersionNumber": 1,
-          "FileName": "v1.docx",
-          "ModifiedUser": "Marge",
-          "ModifiedDate": "2026-09-30T17:41:40.9482633+05:30",
-          "Status": null
-        }
-      ]
-    },
-    {
-      "Id": "Merge1",
-      "Title": "Merge1",
+      "Id": "Paragraph-Formatting",
+      "Title": "Paragraph Formatting",
       "Version": "1.0",
       "Category": "SOP",
       "Status": "Draft",
-      "Author": "Merge",
-      "CreatedDate": "2026-09-30T17:44:04.4894856+05:30",
-      "ModifiedDate": "2026-09-30T17:44:04.4894858+05:30",
+      "Author": "Admin",
+      "CreatedDate": "2026-09-30T19:28:12.1322669+05:30",
+      "ModifiedDate": "2026-09-30T19:28:12.132267+05:30",
       "CurrentFile": "v1.docx",
       "CurrentVersion": 1,
       "Versions": [
         {
           "VersionNumber": 1,
           "FileName": "v1.docx",
-          "ModifiedUser": "Merge",
-          "ModifiedDate": "2026-09-30T17:44:04.4894864+05:30",
-          "Status": null
+          "ModifiedUser": "Admin",
+          "ModifiedDate": "2026-09-30T19:28:12.1322676+05:30",
+          "Status": "Draft"
+        }
+      ]
+    },
+    {
+      "Id": "Styles",
+      "Title": "Styles",
+      "Version": "1.0",
+      "Category": "SOP",
+      "Status": "Draft",
+      "Author": "Admin",
+      "CreatedDate": "2026-09-30T19:28:19.7867363+05:30",
+      "ModifiedDate": "2026-09-30T19:28:19.7867364+05:30",
+      "CurrentFile": "v1.docx",
+      "CurrentVersion": 1,
+      "Versions": [
+        {
+          "VersionNumber": 1,
+          "FileName": "v1.docx",
+          "ModifiedUser": "Admin",
+          "ModifiedDate": "2026-09-30T19:28:19.7867368+05:30",
+          "Status": "Draft"
+        }
+      ]
+    },
+    {
+      "Id": "Web-layout",
+      "Title": "Web layout",
+      "Version": "1.0",
+      "Category": "SOP",
+      "Status": "Draft",
+      "Author": "Admin",
+      "CreatedDate": "2026-09-30T19:28:27.2124009+05:30",
+      "ModifiedDate": "2026-09-30T19:28:27.212401+05:30",
+      "CurrentFile": "v1.docx",
+      "CurrentVersion": 1,
+      "Versions": [
+        {
+          "VersionNumber": 1,
+          "FileName": "v1.docx",
+          "ModifiedUser": "Admin",
+          "ModifiedDate": "2026-09-30T19:28:27.2124016+05:30",
+          "Status": "Draft"
         }
       ]
     }
