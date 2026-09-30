@@ -1,0 +1,37 @@
+{
+  "name": "clientside",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "eslint .",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@syncfusion/ej2-react-buttons": "^35.1.37",
+    "@syncfusion/ej2-react-documenteditor": "^35.1.37",
+    "@syncfusion/ej2-react-dropdowns": "^35.1.37",
+    "@syncfusion/ej2-react-grids": "^35.1.37",
+    "@syncfusion/ej2-react-inputs": "^35.1.37",
+    "@syncfusion/ej2-react-layouts": "^35.1.37",
+    "@syncfusion/ej2-react-navigations": "^35.1.37",
+    "@syncfusion/ej2-react-notifications": "^35.1.37",
+    "@syncfusion/ej2-react-popups": "^35.1.37",
+    "@syncfusion/ej2-tailwind3-theme": "^35.1.37",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.7",
+    "@vitejs/plugin-react": "^6.1.1",
+    "eslint": "^10.10.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.5.6",
+    "globals": "^17.12.0",
+    "vite": "^8.3.0"
+  }
+}
