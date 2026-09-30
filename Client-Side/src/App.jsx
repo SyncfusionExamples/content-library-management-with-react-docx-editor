@@ -465,7 +465,15 @@ function MetadataDialog({ item, onClose, onSave }) {
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                         <div>
                             <label style={{ display: 'block', fontSize: 13, marginBottom: 4 }}>Version</label>
-                            <input type="text" value={version} onChange={(e) => setVersion(e.target.value)} style={{ width: '100%', padding: 6, border: '1px solid #cbd5e1', borderRadius: 4, boxSizing: 'border-box' }} />
+                            <input
+                                type="text"
+                                value={version}
+                                onChange={(e) => setVersion(e.target.value)}
+                                readOnly
+                                disabled
+                                title="Version is managed automatically. The current version is shown for reference; the next save will create v{n+1}."
+                                style={{ width: '100%', padding: 6, border: '1px solid #cbd5e1', borderRadius: 4, boxSizing: 'border-box', background: '#f1f5f9', color: '#475569', cursor: 'not-allowed' }}
+                            />
                         </div>
                         <div>
                             <label style={{ display: 'block', fontSize: 13, marginBottom: 4 }}>Author</label>
@@ -553,7 +561,15 @@ function MergeDialog({ defaults, count, onConfirm, onCancel }) {
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                         <div>
                             <label style={{ display: 'block', fontSize: 13, marginBottom: 4 }}>Version</label>
-                            <input type="text" value={version} onChange={(e) => setVersion(e.target.value)} style={{ width: '100%', padding: 6, border: '1px solid #cbd5e1', borderRadius: 4, boxSizing: 'border-box' }} />
+                            <input
+                                type="text"
+                                value={version}
+                                onChange={(e) => setVersion(e.target.value)}
+                                readOnly
+                                disabled
+                                title="Merged documents are always saved as v1; subsequent edits increment the version automatically."
+                                style={{ width: '100%', padding: 6, border: '1px solid #cbd5e1', borderRadius: 4, boxSizing: 'border-box', background: '#f1f5f9', color: '#475569', cursor: 'not-allowed' }}
+                            />
                         </div>
                         <div>
                             <label style={{ display: 'block', fontSize: 13, marginBottom: 4 }}>Author</label>

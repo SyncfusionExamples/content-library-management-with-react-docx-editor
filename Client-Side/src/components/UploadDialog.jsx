@@ -139,8 +139,10 @@ export default function UploadDialog({ open, onClose, onUploaded }) {
                                 type="text"
                                 value={version}
                                 onChange={(e) => setVersion(e.target.value)}
-                                disabled={busy}
-                                style={{ width: '100%', padding: '6px 8px', fontSize: 13, border: '1px solid #cbd5e1', borderRadius: 4, boxSizing: 'border-box' }}
+                                disabled={true}
+                                readOnly
+                                title="Version is assigned automatically when you save the document. New uploads always start at 1."
+                                style={{ width: '100%', padding: '6px 8px', fontSize: 13, border: '1px solid #cbd5e1', borderRadius: 4, boxSizing: 'border-box', background: '#f1f5f9', color: '#475569', cursor: 'not-allowed' }}
                             />
                         </div>
                         <div>
