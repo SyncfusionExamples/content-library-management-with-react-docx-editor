@@ -212,24 +212,64 @@ export default function App() {
     };
 
     const handleMetaSave = async (item) => {
-        setBusy(true);
-        try {
-            await updateMetadata(item.Id, {
-                title: item.Title, version: item.Version,
-                category: item.Category, status: item.Status, author: item.Author
-            });
-            showToast('Metadata updated.', 'success');
-            setMetaItem(null);
-            await refresh();
-        } catch (e) { showToast('Update failed: ' + e.message, 'error'); }
-        finally { setBusy(false); }
-    };
+            setBusy(true);
+            try {
+                const updated = await updateMetadata(item.Id, {
+                    title: item.Title, version: item.Version,
+                    category: item.Category, status: item.Status, author: item.Author
+                });
+                showToast('Metadata updated.', 'success');
+                setMetaItem(null);
+                await refresh();
+                // If the history dialog is open on the same item, refresh
+                // its snapshot so a status change made via the metadata
+                // dialog (which now only updates item.Status) is reflected
+                // on the current row immediately.
+                setHistoryDialog(prev => {
+                    if (!prev || !prev.item) return prev;
+                    if (prev.item.Id !== updated.Id) return prev;
+                    return {
+                        item: { ...updated },
+                        details: {
+                            ...prev.details,
+                            title: updated.Title,
+                            category: updated.Category,
+                            status: updated.Status,
+                            author: updated.Author,
+                            currentFile: updated.CurrentFile,
+                            currentVersion: updated.CurrentVersion,
+                            versions: (updated.Versions || []).slice().sort((a, b) => b.VersionNumber - a.VersionNumber),
+                        },
+                    };
+                });
+                // Same for the editor dialog (status / title / author etc).
+                setEditItem(prev => (prev && prev.Id === updated.Id ? { ...updated } : prev));
+            } catch (e) { showToast('Update failed: ' + e.message, 'error'); }
+            finally { setBusy(false); }
+        };
 
     const handleEditSaved = (updated) => {
         setEditItem(null);
         setEditSfdt(null);
         showToast(`Saved as v${updated.CurrentVersion}.`, 'success');
         refresh();
+        // If the history dialog is open on the same item, refresh its
+        // snapshot so the new version appears (and the previous current
+        // version is now visibly frozen with its save-time status).
+        setHistoryDialog(prev => {
+            if (!prev || !prev.item) return prev;
+            if (prev.item.Id !== updated.Id) return prev;
+            return {
+                item: { ...updated },
+                details: {
+                    ...prev.details,
+                    status: updated.Status,
+                    currentFile: updated.CurrentFile,
+                    currentVersion: updated.CurrentVersion,
+                    versions: (updated.Versions || []).slice().sort((a, b) => b.VersionNumber - a.VersionNumber),
+                },
+            };
+        });
     };
 
     // Status changes are made from inside the editor dialog. We lift the
@@ -633,135 +673,142 @@ function VersionHistoryDialog({ item, details, onClose, onOpenVersion }) {
     const currentVer = details?.currentVersion || item?.CurrentVersion;
 
     return (
-        <div
-            style={{
-                position: 'fixed', inset: 0, zIndex: 9999,
-                background: 'rgba(15,23,42,0.45)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center'
-            }}
-            onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
-        >
             <div
                 style={{
-                    background: '#fff', width: 880, maxWidth: '95vw', maxHeight: '85vh',
-                    borderRadius: 8, boxShadow: '0 10px 40px rgba(0,0,0,0.2)',
-                    padding: 0, color: '#1f2937',
-                    display: 'flex', flexDirection: 'column', overflow: 'hidden'
+                    position: 'fixed', inset: 0, zIndex: 9999,
+                    background: 'rgba(15,23,42,0.45)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center'
                 }}
-                onClick={(e) => e.stopPropagation()}
+                onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
             >
-                <div style={{
-                    padding: '14px 18px', borderBottom: '1px solid #e5e7eb',
-                    display: 'flex', justifyContent: 'space-between', alignItems: 'center'
-                }}>
-                    <div>
-                        <strong>Version history · {details?.title || item?.Title}</strong>
-                        {fileExt(item?.CurrentFile) && (
-                            <span style={{ color: '#94a3b8', fontWeight: 'normal', fontSize: 13, marginLeft: 6 }}>
-                                (.{fileExt(item.CurrentFile)})
-                            </span>
-                        )}
-                        <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>
-                            {totalCount} version{totalCount === 1 ? '' : 's'} stored
-                            {currentVer ? ` · latest is v${currentVer}` : ''}
+                <div
+                    style={{
+                        background: '#fff', width: 880, maxWidth: '95vw', maxHeight: '85vh',
+                        borderRadius: 8, boxShadow: '0 10px 40px rgba(0,0,0,0.2)',
+                        padding: 0, color: '#1f2937',
+                        display: 'flex', flexDirection: 'column', overflow: 'hidden'
+                    }}
+                    onClick={(e) => e.stopPropagation()}
+                >
+                    <div style={{
+                        padding: '14px 18px', borderBottom: '1px solid #e5e7eb',
+                        display: 'flex', justifyContent: 'space-between', alignItems: 'center'
+                    }}>
+                        <div>
+                            <strong>Version history · {details?.title || item?.Title}</strong>
+                            {fileExt(item?.CurrentFile) && (
+                                <span style={{ color: '#94a3b8', fontWeight: 'normal', fontSize: 13, marginLeft: 6 }}>
+                                    (.{fileExt(item.CurrentFile)})
+                                </span>
+                            )}
+                            <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>
+                                {totalCount} version{totalCount === 1 ? '' : 's'} stored
+                                {currentVer ? ` · latest is v${currentVer}` : ''}
+                            </div>
                         </div>
+                        <button type="button" onClick={onClose} style={{ background: 'transparent', border: 0, fontSize: 20, cursor: 'pointer' }}>×</button>
                     </div>
-                    <button type="button" onClick={onClose} style={{ background: 'transparent', border: 0, fontSize: 20, cursor: 'pointer' }}>×</button>
-                </div>
-                <div style={{ padding: '12px 18px', overflow: 'auto' }}>
-                    {totalCount === 0 ? (
-                        <div style={{ padding: 20, textAlign: 'center', color: '#64748b' }}>
-                            No previous versions are stored for this document yet.
-                            Save changes from the editor to create a new version.
-                        </div>
-                    ) : (
-                        <table className="cl-table" style={{ width: '100%' }}>
-                            <thead>
-                                <tr>
-                                    <th style={{ width: 80 }}>Version</th>
-                                    <th style={{ width: 120 }}>Category</th>
-                                    <th style={{ width: 100 }}>Status</th>
-                                    <th style={{ width: 120 }}>Author</th>
-                                    <th style={{ width: 180 }}>Modified</th>
-                                    <th style={{ width: 200 }}>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {versions.map(v => {
-                                    const isCurrent = v.VersionNumber === currentVer;
-                                    // Each version carries the status the
-                                    // document had when it was saved. Older
-                                    // records (created before the per-version
-                                    // status snapshot was added) have no
-                                    // Status field; show them as a blank
-                                    // rather than falling back to the
-                                    // document's *current* status, which
-                                    // would otherwise make an old "Review"
-                                    // appear as "Approved" after a metadata
-                                    // change.
-                                    const versionStatus = v.Status || '';
-                                    return (
-                                        <tr key={v.VersionNumber}>
-                                            <td>
-                                                v{v.VersionNumber}
-                                                {isCurrent && (
-                                                    <span style={{
-                                                        marginLeft: 6, fontSize: 11,
-                                                        background: '#dcfce7', color: '#166534',
-                                                        padding: '1px 6px', borderRadius: 10
-                                                    }}>
-                                                        current
-                                                    </span>
-                                                )}
-                                            </td>
-                                            <td>{details?.category || ''}</td>
-                                            <td>{versionStatus}</td>
-                                            <td>{v.ModifiedUser || ''}</td>
-                                            <td>{v.ModifiedDate ? new Date(v.ModifiedDate).toLocaleString() : ''}</td>
-                                            <td>
-                                                <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-start' }}>
-                                                    <button
-                                                        className="cl-btn cl-btn-primary"
-                                                        style={{ padding: '4px 10px', fontSize: 12 }}
-                                                        onClick={() => onOpenVersion(item, v.FileName)}
-                                                    >
-                                                        Open
-                                                    </button>
-                                                    <button
-                                                        className="cl-btn"
-                                                        style={{ padding: '4px 10px', fontSize: 12 }}
-                                                        onClick={() => {
-                                                            const a = document.createElement('a');
-                                                            a.href = downloadUrl(item.Id, v.VersionNumber);
-                                                            a.download = '';
-                                                            a.click();
-                                                        }}
-                                                    >
-                                                        Download
-                                                    </button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    );
-                                })}
-                            </tbody>
-                        </table>
-                    )}
-                </div>
-                <div style={{
-                    padding: '12px 18px', borderTop: '1px solid #e5e7eb',
-                    background: '#f8fafc', display: 'flex', justifyContent: 'flex-end',
-                    borderRadius: '0 0 8px 8px'
-                }}>
-                    <button
-                        type="button"
-                        onClick={onClose}
-                        style={{ padding: '6px 14px', background: '#fff', border: '1px solid #cbd5e1', borderRadius: 4, cursor: 'pointer' }}
-                    >
-                        Close
-                    </button>
+                    <div style={{ padding: '12px 18px', overflow: 'auto' }}>
+                        {totalCount === 0 ? (
+                            <div style={{ padding: 20, textAlign: 'center', color: '#64748b' }}>
+                                No previous versions are stored for this document yet.
+                                Save changes from the editor to create a new version.
+                            </div>
+                        ) : (
+                            <table className="cl-table" style={{ width: '100%' }}>
+                                <thead>
+                                    <tr>
+                                        <th style={{ width: 80 }}>Version</th>
+                                        <th style={{ width: 120 }}>Category</th>
+                                        <th style={{ width: 100 }}>Status</th>
+                                        <th style={{ width: 120 }}>Author</th>
+                                        <th style={{ width: 180 }}>Modified</th>
+                                        <th style={{ width: 200 }}>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {versions.map(v => {
+                                        const isCurrent = v.VersionNumber === currentVer;
+                                        // Older versions display the frozen status
+                                        // they were saved with (v.Status is set
+                                        // exactly once, by AddVersion, and never
+                                        // overwritten after that). The current
+                                        // version is special: it represents the
+                                        // live "active edit" of the document, so
+                                        // its displayed status is the document's
+                                        // current workflow status (details.status,
+                                        // which mirrors item.Status on the server).
+                                        // Falling back to v.Status for the current
+                                        // row would show "Draft" right after the
+                                        // user changes the status to "Review" or
+                                        // "Approved" without saving, because the
+                                        // per-version record still has the value
+                                        // it had at the last save.
+                                        const versionStatus = isCurrent
+                                            ? (details?.status || v.Status || '')
+                                            : (v.Status || '');
+                                        return (
+                                            <tr key={v.VersionNumber}>
+                                                <td>
+                                                    v{v.VersionNumber}
+                                                    {isCurrent && (
+                                                        <span style={{
+                                                            marginLeft: 6, fontSize: 11,
+                                                            background: '#dcfce7', color: '#166534',
+                                                            padding: '1px 6px', borderRadius: 10
+                                                        }}>
+                                                            current
+                                                        </span>
+                                                    )}
+                                                </td>
+                                                <td>{details?.category || ''}</td>
+                                                <td>{versionStatus}</td>
+                                                <td>{v.ModifiedUser || ''}</td>
+                                                <td>{v.ModifiedDate ? new Date(v.ModifiedDate).toLocaleString() : ''}</td>
+                                                <td>
+                                                    <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-start' }}>
+                                                        <button
+                                                            className="cl-btn cl-btn-primary"
+                                                            style={{ padding: '4px 10px', fontSize: 12 }}
+                                                            onClick={() => onOpenVersion(item, v.FileName)}
+                                                        >
+                                                            Open
+                                                        </button>
+                                                        <button
+                                                            className="cl-btn"
+                                                            style={{ padding: '4px 10px', fontSize: 12 }}
+                                                            onClick={() => {
+                                                                const a = document.createElement('a');
+                                                                a.href = downloadUrl(item.Id, v.VersionNumber);
+                                                                a.download = '';
+                                                                a.click();
+                                                            }}
+                                                        >
+                                                            Download
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        );
+                                    })}
+                                </tbody>
+                            </table>
+                        )}
+                    </div>
+                    <div style={{
+                        padding: '12px 18px', borderTop: '1px solid #e5e7eb',
+                        background: '#f8fafc', display: 'flex', justifyContent: 'flex-end',
+                        borderRadius: '0 0 8px 8px'
+                    }}>
+                        <button
+                            type="button"
+                            onClick={onClose}
+                            style={{ padding: '6px 14px', background: '#fff', border: '1px solid #cbd5e1', borderRadius: 4, cursor: 'pointer' }}
+                        >
+                            Close
+                        </button>
+                    </div>
                 </div>
             </div>
-        </div>
-    );
-}
+        );
+    }
