@@ -42,6 +42,15 @@ namespace EJ2APIServices.Models
         public string ModifiedUser { get; set; }
 
         public DateTime ModifiedDate { get; set; } = DateTime.Now;
+
+        /// <summary>
+        /// The status the document had at the moment this version was saved.
+        /// Snapshotted into the version record so the history view can show
+        /// what state each version was in when it was authored, independent
+        /// of the document's current status. Null on legacy records created
+        /// before this field was added — those fall back to the item status.
+        /// </summary>
+        public string Status { get; set; }
     }
 
     /// <summary>

@@ -103,7 +103,10 @@ namespace EJ2APIServices.Controllers
                     VersionNumber = 1,
                     FileName = storedFileName,
                     ModifiedUser = item.Author,
-                    ModifiedDate = DateTime.Now
+                    ModifiedDate = DateTime.Now,
+                    // Seed the v1 status so the history dialog shows the
+                    // correct state for the first version of a new upload.
+                    Status = item.Status,
                 }
             };
 
@@ -427,10 +430,15 @@ namespace EJ2APIServices.Controllers
                         VersionNumber = 1,
                         FileName = "v1.docx",
                         ModifiedUser = string.IsNullOrWhiteSpace(request?.Author) ? "Merge" : request.Author.Trim(),
-                        ModifiedDate = DateTime.Now
+                        ModifiedDate = DateTime.Now,
                     }
                 }
             };
+
+            // Seed the v1 status snapshot for the freshly-merged item now
+            // that newItem is fully constructed (can't reference it inside
+            // the object initializer above).
+            newItem.Versions[0].Status = newItem.Status;
 
             var store = _library.Load();
             newItem.Id = _library.BuildUniqueFolderName(newItem.Title, store);

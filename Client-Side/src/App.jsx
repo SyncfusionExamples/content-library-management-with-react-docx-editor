@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import {
     listItems, deleteItem,
     downloadUrl, exportCombinedDocx, exportExcel, downloadBlob,
-    updateMetadata, loadSfdt, mergeAndSaveDocx, getItemVersions
+    updateMetadata, updateStatus, loadSfdt, mergeAndSaveDocx, getItemVersions
 } from './api';
 import UploadDialog from './components/UploadDialog';
 import DocxEditorDialog from './components/DocxEditorDialog';
@@ -217,6 +217,34 @@ export default function App() {
         refresh();
     };
 
+    // Status changes are made from inside the editor dialog. We lift the
+    // API call up here so we can refresh the home-page list as soon as
+    // the server confirms the change. Otherwise the row in the table
+    // keeps showing the old status until the editor is closed and
+    // reopened (or another refresh-triggering action runs).
+    //
+    // We also keep the editor's and history dialog's local snapshots
+    // in sync: both were opened against an older copy of the item and
+    // would otherwise show stale status until the user re-opens them.
+    const handleStatusChanged = async (id, newStatus) => {
+        const updated = await updateStatus(id, newStatus);
+        await refresh();
+        // Keep the editor in sync if it is still open on the same item.
+        // setEditItem only fires the editor's [item] effect when the
+        // reference actually changes; we always pass a new object so the
+        // dropdown re-seeds with the latest Version.Status.
+        setEditItem(prev => (prev && prev.Id === id ? { ...updated } : prev));
+        // Keep the history dialog in sync if it is open on the same item.
+        setHistoryDialog(prev => {
+            if (!prev || !prev.details) return prev;
+            if (prev.item && prev.item.Id === id) {
+                return { item: { ...updated }, details: { ...prev.details, status: updated.Status, currentFile: updated.CurrentFile, currentVersion: updated.CurrentVersion, versions: (updated.Versions || []).slice().sort((a, b) => b.VersionNumber - a.VersionNumber) } };
+            }
+            return prev;
+        });
+        return updated;
+    };
+
     const closeEditor = () => {
         setEditItem(null);
         setEditSfdt(null);
@@ -264,14 +292,14 @@ export default function App() {
                 </button>
                 <span className="cl-spacer" />
                 <button
-                    className="cl-btn cl-btn-success"
+                    className="cl-btn cl-btn-primary"
                     onClick={handleExportDocx}
                     disabled={busy || !canMergeDocx()}
                     title={canMergeDocx() ? 'Merge selected DOCX documents into a single file' : 'Select at least two DOCX documents (no XLSX or PPTX) to enable merge'}
                 >
                     Merge documents
                 </button>
-                <button className="cl-btn cl-btn-success" onClick={handleExportExcel} disabled={busy || selectedIds.size === 0}>Export Excel</button>
+                <button className="cl-btn cl-btn-primary" onClick={handleExportExcel} disabled={busy || selectedIds.size === 0}>Export Excel</button>
                 <button className="cl-btn cl-btn-danger" onClick={handleDelete} disabled={busy || selectedIds.size === 0}>Delete</button>
             </div>
 
@@ -373,6 +401,7 @@ export default function App() {
                     sfdt={editSfdt}
                     onClose={closeEditor}
                     onSaved={handleEditSaved}
+                    onStatusChanged={handleStatusChanged}
                 />
             )}
 
@@ -627,6 +656,17 @@ function VersionHistoryDialog({ item, details, onClose, onOpenVersion }) {
                             <tbody>
                                 {versions.map(v => {
                                     const isCurrent = v.VersionNumber === currentVer;
+                                    // Each version carries the status the
+                                    // document had when it was saved. Older
+                                    // records (created before the per-version
+                                    // status snapshot was added) have no
+                                    // Status field; show them as a blank
+                                    // rather than falling back to the
+                                    // document's *current* status, which
+                                    // would otherwise make an old "Review"
+                                    // appear as "Approved" after a metadata
+                                    // change.
+                                    const versionStatus = v.Status || '';
                                     return (
                                         <tr key={v.VersionNumber}>
                                             <td>
@@ -642,7 +682,7 @@ function VersionHistoryDialog({ item, details, onClose, onOpenVersion }) {
                                                 )}
                                             </td>
                                             <td>{details?.category || ''}</td>
-                                            <td>{details?.status || ''}</td>
+                                            <td>{versionStatus}</td>
                                             <td>{v.ModifiedUser || ''}</td>
                                             <td>{v.ModifiedDate ? new Date(v.ModifiedDate).toLocaleString() : ''}</td>
                                             <td>

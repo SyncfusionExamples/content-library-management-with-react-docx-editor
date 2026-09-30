@@ -1,11 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
 import {
     DocumentEditorContainerComponent,
-    Toolbar,
+    Toolbar,Ribbon,
 } from '@syncfusion/ej2-react-documenteditor';
 import { saveNewVersion, updateStatus } from '../api';
 
-DocumentEditorContainerComponent.Inject(Toolbar);
+DocumentEditorContainerComponent.Inject(Ribbon, Toolbar);
 
 const STATUS_OPTIONS = ['Draft', 'Review', 'Approved'];
 
@@ -21,7 +21,7 @@ const STATUS_OPTIONS = ['Draft', 'Review', 'Approved'];
  * On mount the editor immediately calls `open(sfdt)` to render the
  * document. No polling, no auto-loader, no service URL dance.
  */
-export default function DocxEditorDialog({ item, sfdt, onClose, onSaved }) {
+export default function DocxEditorDialog({ item, sfdt, onClose, onSaved, onStatusChanged }) {
     const containerRef = useRef(null);
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState('');
@@ -30,8 +30,40 @@ export default function DocxEditorDialog({ item, sfdt, onClose, onSaved }) {
     const [statusBusy, setStatusBusy] = useState(false);
     const [statusMsg, setStatusMsg] = useState('');
 
+    // True when the editor is open on a non-current version (e.g. the
+    // user opened v2 via the history dialog while the current head is
+    // v3). The status dropdown is disabled in that case because status
+    // only describes the active edit — older versions are frozen and
+    // cannot be re-validated. Saving an old version still creates a
+    // new v(n+1) that inherits the document's current status.
+    const isOldVersion = (() => {
+        if (!item) return false;
+        const m = /v(\d+)\.docx$/i.exec(item.CurrentFile || '');
+        if (!m) return false;
+        const openV = parseInt(m[1], 10);
+        return Number.isFinite(openV) && Number.isFinite(item.CurrentVersion) && openV < item.CurrentVersion;
+    })();
+
     useEffect(() => {
-        if (item && item.Status) setStatus(item.Status);
+        if (!item) return;
+        // When opening a specific historical version (CurrentFile =
+        // v{n}.docx, n < CurrentVersion) the status dropdown should
+        // show the status that version was saved with, not the
+        // document's current status. Each version record carries a
+        // frozen Status (added so the history dialog can show the
+        // state at save time); fall back to the item's current Status
+        // for legacy records that predate the snapshot.
+        const fileName = item.CurrentFile || '';
+        const m = /v(\d+)\.docx$/i.exec(fileName);
+        if (m && Array.isArray(item.Versions)) {
+            const target = parseInt(m[1], 10);
+            const v = item.Versions.find(x => x.VersionNumber === target);
+            if (v && v.Status) {
+                setStatus(v.Status);
+                return;
+            }
+        }
+        if (item.Status) setStatus(item.Status);
     }, [item]);
 
     useEffect(() => {
@@ -45,6 +77,27 @@ export default function DocxEditorDialog({ item, sfdt, onClose, onSaved }) {
             setError('Failed to render document: ' + (e.message || e));
         }
     }, [sfdt, opened]);
+
+    // Drive the editor's track-changes behaviour off the current
+    // status: enabled for Review / Approved, disabled for Draft. The
+    // prop on the container only takes effect on first render, so we
+    // also push the value into the editor instance whenever the
+    // status changes. The isOldVersion guard means we never toggle
+    // tracking on a frozen historical version.
+    const trackChangesEnabled = !isOldVersion && (status === 'Review' || status === 'Approved');
+    useEffect(() => {
+        const editor = containerRef.current && containerRef.current.documentEditor;
+        if (!editor) return;
+        try {
+            if (typeof editor.enableTrackChanges === 'boolean' || editor.enableTrackChanges === undefined) {
+                editor.enableTrackChanges = trackChangesEnabled;
+            }
+        } catch (e) {
+            // Older builds expose the flag as readonly; the JSX prop
+            // already covers the initial render, so just log and move on.
+            console.warn('Could not set enableTrackChanges at runtime', e);
+        }
+    }, [trackChangesEnabled, opened]);
 
     if (!item) return null;
 
@@ -70,12 +123,30 @@ export default function DocxEditorDialog({ item, sfdt, onClose, onSaved }) {
 
     const handleStatusChange = async (e) => {
         const newStatus = e.target.value;
+        // Guard: status can only be changed while editing the current
+        // version. If the editor is open on a historical file we
+        // revert the selection silently and do not call the API.
+        if (isOldVersion) {
+            setStatus(status);
+            setStatusMsg('Status is frozen for older versions');
+            setTimeout(() => setStatusMsg(''), 2500);
+            return;
+        }
         const previous = status;
         setStatus(newStatus);
         setStatusBusy(true);
         setStatusMsg('');
         try {
-            await updateStatus(item.Id, newStatus);
+            // Delegate the API call + list refresh to the parent so the
+            // home-page table updates immediately, not only after a save.
+            // If the parent didn't provide a handler, fall back to a
+            // direct API call (no refresh in that case, but the status
+            // still gets persisted).
+            if (typeof onStatusChanged === 'function') {
+                await onStatusChanged(item.Id, newStatus);
+            } else {
+                await updateStatus(item.Id, newStatus);
+            }
             setStatusMsg('Status updated');
         } catch (err) {
             setStatus(previous);
@@ -155,10 +226,11 @@ export default function DocxEditorDialog({ item, sfdt, onClose, onSaved }) {
                         id={`docEditor_${item.Id}`}
                         height="100%"
                         width="100%"
+                        toolbarMode="Ribbon"
                         enableToolbar={true}
                         showPropertiesPane={false}
                         isReadOnly={false}
-                        enableTrackChanges={true}
+                        enableTrackChanges={trackChangesEnabled}
                         showComments={true}
                     />
                 </div>
@@ -178,11 +250,12 @@ export default function DocxEditorDialog({ item, sfdt, onClose, onSaved }) {
                             id="status-select"
                             value={status}
                             onChange={handleStatusChange}
-                            disabled={statusBusy || saving}
+                            disabled={statusBusy || saving || isOldVersion}
+                            title={isOldVersion ? 'Status is frozen for older versions. The current version status applies when you save this as a new version.' : undefined}
                             style={{
                                 padding: '4px 8px', border: '1px solid #cbd5e1',
                                 borderRadius: 4, background: '#fff', fontSize: 13,
-                                cursor: statusBusy ? 'not-allowed' : 'pointer',
+                                cursor: (statusBusy || isOldVersion) ? 'not-allowed' : 'pointer',
                             }}
                         >
                             {STATUS_OPTIONS.map(s => (

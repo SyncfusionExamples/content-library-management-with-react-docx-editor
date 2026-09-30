@@ -151,6 +151,11 @@ namespace EJ2APIServices.Services
         /// so the table column reflects the save. Status and metadata-only
         /// changes (handled by UpdateStatus / UpdateMetadata) leave the
         /// version untouched, as required.
+        ///
+        /// The version being created snapshots the item's current Status so
+        /// the history view can show "this version was authored when the
+        /// document was in state X". Older version records keep the status
+        /// they were saved with and are not retroactively changed.
         /// </summary>
         public ContentItem AddVersion(string id, Stream fileStream, string modifiedUser)
         {
@@ -181,7 +186,11 @@ namespace EJ2APIServices.Services
                 VersionNumber = next,
                 FileName = fileName,
                 ModifiedUser = modifiedUser,
-                ModifiedDate = DateTime.Now
+                ModifiedDate = DateTime.Now,
+                // Snapshot the current workflow status onto the new version
+                // so the history dialog can show what state the document
+                // was in when this version was authored.
+                Status = item.Status,
             });
             Save(store);
             return item;
@@ -194,6 +203,12 @@ namespace EJ2APIServices.Services
             if (item == null) return null;
             item.Status = status;
             item.ModifiedDate = DateTime.Now;
+            // Status is a property of the active edit. The current version
+            // (the one being worked on) inherits the new status, but older
+            // versions keep the status they were saved with. This matches
+            // the "status on the active edit only" model the user picked.
+            var current = item.Versions?.FirstOrDefault(v => v.VersionNumber == item.CurrentVersion);
+            if (current != null) current.Status = status;
             Save(store);
             return item;
         }
@@ -209,6 +224,19 @@ namespace EJ2APIServices.Services
             if (!string.IsNullOrEmpty(author)) item.Author = author;
             if (!string.IsNullOrEmpty(version)) item.Version = version;
             item.ModifiedDate = DateTime.Now;
+
+            // When status is changed through metadata, only the current
+            // (active-edit) version inherits the new value. Older
+            // versions keep the status they were saved with, so the
+            // history view can still show what state each historical
+            // version was authored in. This mirrors the rule used by
+            // UpdateStatus so both entry points behave identically.
+            if (!string.IsNullOrEmpty(status))
+            {
+                var current = item.Versions?.FirstOrDefault(v => v.VersionNumber == item.CurrentVersion);
+                if (current != null) current.Status = status;
+            }
+
             Save(store);
             return item;
         }
