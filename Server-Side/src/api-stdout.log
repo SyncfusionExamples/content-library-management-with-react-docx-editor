@@ -1,0 +1,6 @@
+Hosting environment: Production
+Content root path: D:\Document Editor\Pre Sale\Content Management POC\serverside\src
+Now listening on: http://localhost:62870
+Application started. Press Ctrl+C to shut down.
+warn: Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionMiddleware[3]
+      Failed to determine the https port for redirect.

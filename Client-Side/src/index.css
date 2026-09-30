@@ -1,0 +1,17 @@
+/* Syncfusion DocumentEditor + Container theme (needed for the in-app editor) */
+@import '../node_modules/@syncfusion/ej2-tailwind3-theme/styles/document-editor/index.css';
+@import '../node_modules/@syncfusion/ej2-tailwind3-theme/styles/document-editor-container/index.css';
+
+/* Dialog + Buttons + Popup (used by the Edit dialog) */
+@import '../node_modules/@syncfusion/ej2-tailwind3-theme/styles/dialog/index.css';
+@import '../node_modules/@syncfusion/ej2-tailwind3-theme/styles/button/index.css';
+@import '../node_modules/@syncfusion/ej2-tailwind3-theme/styles/popup/index.css';
+
+html, body, #root {
+    margin: 0;
+    padding: 0;
+    background: #f1f5f9;
+    color: #1f2937;
+    font-family: 'Segoe UI', system-ui, -apple-system, Roboto, sans-serif;
+}
+* { box-sizing: border-box; }

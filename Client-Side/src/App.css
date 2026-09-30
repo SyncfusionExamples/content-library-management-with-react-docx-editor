@@ -1,0 +1,104 @@
+.cl-shell {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 16px 24px 40px;
+    color: #1f2937;
+}
+
+.cl-header {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    margin-bottom: 12px;
+}
+.cl-header h1 {
+    font-size: 24px;
+    margin: 0;
+    font-weight: 600;
+    color: #1f2937;
+}
+.cl-subtitle { color: #6b7280; font-size: 14px; }
+
+.cl-toolbar {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+    padding: 8px 12px;
+    background: #f8fafc;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    margin-bottom: 6px;
+}
+.cl-spacer { flex: 1; }
+.cl-status { font-size: 13px; color: #6b7280; margin: 8px 4px; }
+
+.cl-btn {
+    padding: 6px 12px;
+    background: #fff;
+    color: #1f2937;
+    border: 1px solid #cbd5e1;
+    border-radius: 4px;
+    font-size: 13px;
+    cursor: pointer;
+    font-family: inherit;
+}
+.cl-btn:hover:not(:disabled) { background: #f1f5f9; }
+.cl-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.cl-btn-primary { background: #6366f1; color: #fff; border-color: #6366f1; }
+.cl-btn-primary:hover:not(:disabled) { background: #4f46e5; }
+.cl-btn-success { background: #10b981; color: #fff; border-color: #10b981; }
+.cl-btn-success:hover:not(:disabled) { background: #059669; }
+.cl-btn-danger { background: #ef4444; color: #fff; border-color: #ef4444; }
+.cl-btn-danger:hover:not(:disabled) { background: #dc2626; }
+
+.cl-grid-wrapper {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.cl-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+.cl-table th, .cl-table td {
+    padding: 10px 12px;
+    text-align: left;
+    border-bottom: 1px solid #e5e7eb;
+}
+.cl-table th {
+    background: #f8fafc;
+    font-weight: 600;
+    color: #374151;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.cl-table tr:last-child td { border-bottom: 0; }
+.cl-table .cl-row-selected { background: #eef2ff; }
+.cl-table .cl-row-selected td { color: #1f2937; }
+.cl-empty {
+    text-align: center;
+    color: #6b7280;
+    padding: 40px 12px !important;
+    font-style: italic;
+}
+
+.cl-toast {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    padding: 12px 18px;
+    border-radius: 6px;
+    font-size: 13px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 10000;
+    color: #fff;
+    max-width: 400px;
+}
+.cl-toast-info { background: #6366f1; }
+.cl-toast-success { background: #10b981; }
+.cl-toast-error { background: #ef4444; }
