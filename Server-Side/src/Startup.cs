@@ -97,6 +97,7 @@ namespace EJ2APIServices
             app.UseAuthorization();
             app.UseCors(MyAllowSpecificOrigins);
             app.UseResponseCompression();
+            app.UsePathBase("/content-library-management-with-react-docx-editor");
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers().RequireCors("MyPolicy");
