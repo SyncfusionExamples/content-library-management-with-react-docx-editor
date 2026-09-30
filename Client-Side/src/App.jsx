@@ -182,8 +182,23 @@ export default function App() {
         return true;
     };
 
+    // Export to Excel is a DOCX-only operation. The button is enabled
+    // only when every selected item is a DOCX file — a single DOCX or
+    // multiple DOCX are both fine, but any XLSX/PPTX in the selection
+    // (alone or mixed with DOCX) disables it. The empty selection is
+    // naturally disabled because the loop has no items to confirm.
+    const canExportExcel = () => {
+        if (selectedIds.size === 0) return false;
+        for (const it of items) {
+            if (!selectedIds.has(it.Id)) continue;
+            if (!(it.CurrentFile || '').toLowerCase().endsWith('.docx')) return false;
+        }
+        return true;
+    };
+
     const handleExportExcel = async () => {
-        if (selectedIds.size === 0) { showToast('Select at least one item.', 'info'); return; }
+        if (selectedIds.size === 0) { showToast('Select at least one DOCX item.', 'info'); return; }
+        if (!canExportExcel()) { showToast('Export to Excel supports DOCX items only. Deselect any XLSX or PPTX files.', 'info'); return; }
         try {
             const blob = await exportExcel([...selectedIds]);
             downloadBlob(blob, 'ContentExport.xlsx');
@@ -299,7 +314,9 @@ export default function App() {
                 >
                     Merge documents
                 </button>
-                <button className="cl-btn cl-btn-primary" onClick={handleExportExcel} disabled={busy || selectedIds.size === 0}>Export Excel</button>
+                <button className="cl-btn cl-btn-primary" onClick={handleExportExcel} disabled={busy || !canExportExcel()}
+                    title={canExportExcel() ? 'Export selected DOCX documents to an Excel workbook' : 'Select at least one DOCX document (no XLSX or PPTX) to enable Export Excel'}
+                >Export Excel</button>
                 <button className="cl-btn cl-btn-danger" onClick={handleDelete} disabled={busy || selectedIds.size === 0}>Delete</button>
             </div>
 
