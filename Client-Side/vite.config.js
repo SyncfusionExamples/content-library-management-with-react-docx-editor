@@ -6,6 +6,7 @@ import { defineConfig } from 'vite'
 // to relative ('') in src/api.js so this works in both dev and a deployed
 // build.
 export default defineConfig({
+    base: '/content-library-management-with-react-docx-editor/',
     plugins: [react()],
     server: {
         port: 5173,

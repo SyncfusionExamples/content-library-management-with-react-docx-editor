@@ -14,7 +14,19 @@ async function handle(response) {
     }
     // Some endpoints (delete) return 204; the rest return JSON.
     const ct = response.headers.get('content-type') || '';
-    if (ct.includes('application/json')) return response.json();
+    if (ct.includes('application/json')) {
+        // Defensive: a misconfigured reverse proxy can return a 200
+        // with an HTML body when the actual API is unreachable. The
+        // JSON.parse would throw a SyntaxError; we catch and rethrow
+        // as a clear "API not reachable" error so the UI doesn't
+        // try to use a string as an array and crash.
+        const text = await response.text();
+        try {
+            return JSON.parse(text);
+        } catch {
+            throw new Error(`Expected JSON but got: ${text.slice(0, 200)}`);
+        }
+    }
     return response.text();
 }
 
