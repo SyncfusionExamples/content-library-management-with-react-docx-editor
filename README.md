@@ -124,20 +124,14 @@ Build and run:
 
 ``` bash
 dotnet restore
-dotnet build EJ2APIServices.csproj -c Debug
-dotnet run --project EJ2APIServices.csproj --no-build --configuration Debug --framework net8.0 --no-launch-profile --urls http://localhost:62870
+dotnet build
+dotnet run
 ```
 
 The configured development URL is:
 
 ``` text
 http://localhost:62870
-```
-
-The Document Editor service URL used by the React application is:
-
-``` text
-http://localhost:62870/api/documenteditor/
 ```
 
 Keep this terminal running while using the React application.
@@ -165,7 +159,7 @@ npm run dev
 Open the URL shown by Vite in the terminal, normally:
 
 ``` text
-http://localhost:5173
+http://localhost:5173/content-library-management-with-react-docx-editor/
 ```
 
 The React app's Vite config proxies all `/api/*` requests to the backend

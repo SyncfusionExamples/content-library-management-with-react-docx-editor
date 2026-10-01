@@ -93,13 +93,16 @@ namespace EJ2APIServices
                 app.UseHsts();
             }
             app.UseHttpsRedirection();
+            app.UsePathBase("/content-library-management-with-react-docx-editor");
             app.UseRouting();
             app.UseAuthorization();
             app.UseCors(MyAllowSpecificOrigins);
             app.UseResponseCompression();
-            app.UsePathBase("/content-library-management-with-react-docx-editor");
+            app.UseDefaultFiles();
+            app.UseStaticFiles();
             app.UseEndpoints(endpoints =>
             {
+                endpoints.MapFallbackToFile("index.html");
                 endpoints.MapControllers().RequireCors("MyPolicy");
             });
         }
